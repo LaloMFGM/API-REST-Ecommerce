@@ -2,6 +2,7 @@
   "name": "restapi-ecommerce",
   "version": "1.0.0",
  "main": "dist/app.js",
+
   "scripts": {
     "dev": "nodemon",
     "build": "npm run test && rimraf ./dist && tsc",
