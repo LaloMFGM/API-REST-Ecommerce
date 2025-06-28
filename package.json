@@ -4,7 +4,7 @@
  "main": "dist/app.js",
   "scripts": {
     "dev": "nodemon",
-    "build": "npm run test && rimraf ./dist && tsc",
+    "build": "rimraf ./dist && tsc",
     "start": "node dist/app.js",
     "test": "jest",
     "test:watch": "jest --watch",
