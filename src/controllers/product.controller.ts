@@ -10,6 +10,7 @@ export const getAllProducts = async (
 ) => {
   try {
     const products = await ProductModel.find();
+    console.log(products);
     res.status(200).json({
       message: "Lista de productos obtenida exitosamente",
       products,
