@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import mongoose from "mongoose";
-import { ProductModel } from '../models/ProductModel'; // Adjust path if necessary
+import mongoose from 'mongoose';
+import { ProductModel } from '../models/ProductModel';
 
+// ✅ Obtener todos los productos
 export const getAllProducts = async (
   req: Request,
   res: Response,
@@ -9,30 +10,29 @@ export const getAllProducts = async (
 ) => {
   try {
     const products = await ProductModel.find();
-    console.log(products); // Good for debugging, remove in production if not needed
     res.status(200).json({
       message: "Lista de productos obtenida exitosamente",
       products,
     });
   } catch (error) {
+    console.error("❌ Error en getAllProducts:", error);
     next(error);
   }
 };
 
-
-
+// ✅ Obtener producto por ID
 export const getProductById = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { id } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: "ID de producto inválido" });
-  }
-
   try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "ID de producto inválido" });
+    }
+
     const product = await ProductModel.findById(id);
 
     if (!product) {
@@ -44,12 +44,12 @@ export const getProductById = async (
       product,
     });
   } catch (error) {
+    console.error("❌ Error en getProductById:", error);
     next(error);
   }
 };
 
-
-
+// ✅ Crear producto
 export const createProduct = async (
   req: Request,
   res: Response,
@@ -57,64 +57,60 @@ export const createProduct = async (
 ) => {
   try {
     const productData = req.body;
+
     const product = new ProductModel(productData);
     await product.save();
+
     res.status(201).json({
       message: "Producto creado exitosamente",
       product,
     });
   } catch (error) {
+    console.error("❌ Error en createProduct:", error);
     next(error);
   }
 };
 
-
-
+// ✅ Buscar productos (por ID, nombre, categoría o descripción)
 export const searchProducts = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { query } = req.query; // Get the search term from query parameters
-
-  console.log("Search query:", query); // Log the search query for debugging
-
-  if (!query) {
-    return res.status(400).json({ message: "Por favor, proporcione un término de búsqueda." });
-  }
-
   try {
-    let products;
+    const { query } = req.query;
 
-    // 1. Check if the query is a valid MongoDB ObjectId (for searching by ID)
-    if (mongoose.Types.ObjectId.isValid(query as string)) {
-      products = await ProductModel.findById(query as string);
+    if (!query || typeof query !== 'string') {
+      return res.status(400).json({
+        message: "Por favor, proporcione un término de búsqueda.",
+      });
+    }
 
-      console.log(products); // Log the found products for debugging
+    // Buscar por ID si es válido
+    if (mongoose.Types.ObjectId.isValid(query)) {
+      const foundById = await ProductModel.findById(query);
 
-      if (products) {
-        // If found by ID, wrap it in an array to maintain consistent response structure
+      if (foundById) {
         return res.status(200).json({
           message: "Producto encontrado por ID",
-          products: [products],
+          products: [foundById],
         });
       }
     }
 
-    // 2. If not found by ID or not a valid ID, search by product name or category
-    // Using a case-insensitive regex for broader search
-    products = await ProductModel.find({
+    // Buscar por nombre, categoría o descripción
+    const products = await ProductModel.find({
       $or: [
-        { name: { $regex: query, $options: 'i' } },       // Search by product name (case-insensitive)
-        { category: { $regex: query, $options: 'i' } },    // Search by category (case-insensitive)
-        { description: { $regex: query, $options: 'i' } }, // Optional: Search by description (case-insensitive)
+        { name: { $regex: query, $options: 'i' } },
+        { category: { $regex: query, $options: 'i' } },
+        { description: { $regex: query, $options: 'i' } },
       ],
     });
 
-    
-
     if (products.length === 0) {
-      return res.status(404).json({ message: "No se encontraron productos que coincidan con la búsqueda." });
+      return res.status(404).json({
+        message: "No se encontraron productos que coincidan con la búsqueda.",
+      });
     }
 
     res.status(200).json({
@@ -122,6 +118,7 @@ export const searchProducts = async (
       products,
     });
   } catch (error) {
+    console.error("❌ Error en searchProducts:", error);
     next(error);
   }
 };
