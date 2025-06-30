@@ -1,8 +1,7 @@
 {
   "name": "restapi-ecommerce",
   "version": "1.0.0",
- "main": "dist/app.js",
-
+  "main": "dist/app.js",
   "scripts": {
     "dev": "nodemon",
     "build": "npm run test && rimraf ./dist && tsc",
@@ -19,6 +18,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.4",
     "@types/winston": "^2.4.4",
+    "daisyui": "^5.0.43",
     "jest": "^30.0.3",
     "nodemon": "^3.1.10",
     "rimraf": "^6.0.1",
